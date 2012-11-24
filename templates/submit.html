@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}/Submit/{% endblock %}
+{% block content %}
+<form method="post">
+	<label>
+		<div>Submit:</div>
+		<input type="text" name="subject" value="{{subject}}" size="100">
+	</label>
+	<label>
+		<div>Content:</div>
+		<textarea name="content" rows="20" cols="100">{{content}}</textarea>
+	</label>
+	<div class="error">{{error}}</div>
+	<label>
+		<input type="submit" value="post">
+	</label>
+</form>
+{% endblock %}
