@@ -52,9 +52,10 @@ class SubmitPage(BaseHandler):
 
 class PermaPage(BaseHandler):
     def get(self):
-        post = db.GqlQuery("select * from Posts where id = " + post.id)
+        # post = db.GqlQuery("select * from Posts where id = " + post.id)
 
-        self.render('perma.html', post)
+        # self.render('perma.html', post)
+        self.write('this is the perma page')
 
 app = webapp2.WSGIApplication([('/', FrontPage),
                                ('/([0-9]+)', PermaPage),
