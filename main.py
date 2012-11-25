@@ -63,7 +63,7 @@ app = webapp2.WSGIApplication([('/', FrontPage),
                                 debug=True)
 
 def main():
-  run_wsgi_app(app)
+    run_wsgi_app(app)
 
 if __name__ == '__main__':
-  main()
+    main()
