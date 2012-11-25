@@ -1,5 +1,6 @@
 import os
 import webapp2
+import re
 from jinja2 import Environment, FileSystemLoader
 from google.appengine.ext import db
 
@@ -51,11 +52,10 @@ class SubmitPage(BaseHandler):
             self.render_page(error = error, subject = subject, content = content)
 
 class PermaPage(BaseHandler):
-    def get(self):
-        # post = db.GqlQuery("select * from Posts where id = " + post.id)
+    def get(self, post_id):
+        post = Post.get_by_id(int(post_id))
 
-        # self.render('perma.html', post)
-        self.write('this is the perma page')
+        self.render('perma.html', post = post)
 
 app = webapp2.WSGIApplication([('/', FrontPage),
                                ('/([0-9]+)', PermaPage),

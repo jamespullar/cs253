@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}/Home/{% endblock %}
 {% block content %}
-<div><a href="http://localhost:8080/newpost">/Submit/</a></div>
+<div><a href="./newpost">/Submit/</a></div>
 	{% for post in posts %}
 	<div class="post">
 		<div class="post-subject">{{post.subject}}</div>
