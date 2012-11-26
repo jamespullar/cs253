@@ -68,3 +68,4 @@ class Welcome(BaseHandler):
 app = webapp2.WSGIApplication([('/signup', SignUp),
                                ('/welcome', Welcome)],
                                 debug=True)
+
