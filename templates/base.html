@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    {% block head %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div id="content">{% block content %}{% endblock %}</div>
+</body>
+<footer>
+	<div id="footer">{% block footer %}{% endblock %}</div>
+</footer>
+</html>

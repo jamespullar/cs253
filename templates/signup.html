@@ -1,0 +1,22 @@
+{% block title %}/Signup/{% endblock %}
+{% block content %}
+<form method="post">
+	<label> Username:
+		<input type="text" name="username"></input>
+		<span name="userError">{{userError}}</span>
+	</label><br>
+	<label> Password:
+		<input type="password" name="password"></input>
+		<span name="passwordError">{{passwordError}}</span>
+	</label><br>
+	<label> Verify:
+		<input type="password" name="verify"></input>
+		<span name="verifyError">{{verifyError}}</span>
+	</label><br>
+	<label> Email (optional):
+		<input type="email" name="email" optional></input>
+		<span name="emailError">{{emailError}}</span>
+	</label><br>
+	<input type="submit" value="submit">
+</form>
+{% endblock %}
