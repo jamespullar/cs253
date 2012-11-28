@@ -1,23 +1,54 @@
 {% extends "base.html" %}
+{% block head %}
+<style type="text/css">
+    input {  
+        padding: 9px;  
+        border: solid 1px #E5E5E5;  
+        outline: 0;  
+        font: normal 13px/100% Verdana, Tahoma, sans-serif;  
+        width: 200px;  
+        background: #FFFFFF;  
+        } 
+    input:hover, input:focus {  
+        border-color: #C9C9C9;  
+        }  
+    .form label {  
+        margin-left: 10px;  
+        color: #999999;  
+        }  
+    .submit input {  
+        width: auto;  
+        padding: 9px 15px;  
+        background: #617798;  
+        border: 0;  
+        font-size: 14px;  
+        color: #FFFFFF;  
+        }  
+</style>
+{% endblock %}
 {% block title %}/Signup/{% endblock %}
 {% block content %}
-<form method="post">
-	<label> Username:
-		<input type="text" name="username" value="{{userValue}}"></input>
-		<span name="userError">{{userError}}</span>
-	</label><br>
-	<label> Password:
-		<input type="password" name="password"></input>
-		<span name="passwordError">{{passwordError}}</span>
-	</label><br>
-	<label> Verify:
-		<input type="password" name="verify"></input>
-		<span name="verifyError">{{verifyError}}</span>
-	</label><br>
-	<label> Email (optional):
-		<input type="email" name="email" value="{{emailValue}}" optional></input>
-		<span name="emailError">{{emailError}}</span>
-	</label><br>
+<form method="post" class="form">
+	<p class="username">
+		<input type="text" name="username" id="username" value="{{userValue}}" />
+		<label for="username">Username</label>
+		<label name="userError">{{userError}}</label>
+	</p>
+	<p class="password">
+		<input type="password" id="password" name="password" />
+		<label for="password">Password</label>
+		<label name="passwordError">{{passwordError}}</label>
+	</p>
+	<p class="verify">
+		<input type="password" id="verify" name="verify" />
+		<label for="verify">Verify</label>
+		<label name="verifyError">{{verifyError}}</label>
+	</p>
+	<p class="email">
+		<input type="email" name="email" id="email" value="{{emailValue}}" optional />
+		<label for="email">Email (optional)</label>
+		<label name="emailError">{{emailError}}</label>
+	</p>
 	<input type="submit" value="submit">
 </form>
 {% endblock %}

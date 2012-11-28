@@ -33,11 +33,11 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
-# Creates a User object for storing users in db
-class User(db.Model):
+# Creates a Users object for storing users in db
+class Users(db.Model):
     name = db.StringProperty(required=True)
     password = db.StringProperty(required=True)
-    #email = db.EmailProperty(required=False)
+    email = db.EmailProperty(required=False)
     created = db.DateTimeProperty(auto_now_add=True)
 
 class SignUp(BaseHandler):
@@ -45,7 +45,10 @@ class SignUp(BaseHandler):
         self.render('signup.html')
 
     def post(self):
-        args = {}
+        errors = {}
+        form = {}
+
+        # Get all values from signup form
         username = self.request.get("username")
         password = self.request.get("password")
         verify = self.request.get("verify")
@@ -53,35 +56,38 @@ class SignUp(BaseHandler):
 
         # Validate form data and return errors if invalid
         if not valid_username(username):
-            args["userError"] = "That isn't a valid username."
+            errors["userError"] = "That isn't a valid username."
         if not valid_password(password):
-            args["passwordError"] = "That isn't a valid password."
+            errors["passwordError"] = "That isn't a valid password."
         if not verify == password:
-            args["verifyError"] = "Your passwords don't match."
+            errors["verifyError"] = "Your passwords don't match."
         if not valid_email(email):
-            args["emailError"] = "That isn't a valid email."
+            errors["emailError"] = "That isn't a valid email."
 
         # If errors exist render the page with the errors
         # If no errors exist redirect to welcome page 
-        if args:
-            args["userValue"] = username
-            args["emailValue"] = email
+        if errors:
+            errors["userValue"] = username
+            errors["emailValue"] = email
 
-            self.render('signup.html', **args)
+            self.render('signup.html', **errors)
         else:
             # Create the user entity with validated data
-            user = User(name = username, password = password, email = email)
+            if email:
+                user = Users(name = username, password = password, email = email)
+            else:
+                user = Users(name = username, password = password)
             user.put()
-            user_id = user.key().id()
+
             # Generate a cookie storing user_id
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user_id))
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.key().id()))
 
             self.redirect('/welcome')
 
 class Welcome(BaseHandler):
     def get(self):
         user_id = self.request.cookies.get('user_id', False)
-        user = User.get_by_id(int(user_id))
+        user = Users.get_by_id(int(user_id))
         if user_id:
             self.render('welcome.html', username = user.name)
         else:
