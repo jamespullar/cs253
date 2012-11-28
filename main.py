@@ -3,8 +3,9 @@ import cgi
 import codecs
 import re
 import os
-from google.appengine.ext import db
 from jinja2 import Environment, FileSystemLoader
+from google.appengine.ext import db
+
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
                   autoescape=True)
 
@@ -34,9 +35,10 @@ def valid_email(email):
 
 # Creates a User object for storing users in db
 class User(db.Model):
-    username = db.StringProperty()
-    password = db.StringProperty()
-    email = db.Email()
+    name = db.StringProperty(required=True)
+    password = db.StringProperty(required=True)
+    #email = db.EmailProperty(required=False)
+    created = db.DateTimeProperty(auto_now_add=True)
 
 class SignUp(BaseHandler):
     def get(self):
@@ -68,18 +70,20 @@ class SignUp(BaseHandler):
             self.render('signup.html', **args)
         else:
             # Create the user entity with validated data
-            user = User(username = username, password = password, email = email)
-
+            user = User(name = username, password = password, email = email)
+            user.put()
+            user_id = user.key().id()
             # Generate a cookie storing user_id
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.id))
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user_id))
 
             self.redirect('/welcome')
 
 class Welcome(BaseHandler):
     def get(self):
-        user_id = self.request.cookies.get('user_id')
-        if username:
-            self.render('welcome.html', username = user_id)
+        user_id = self.request.cookies.get('user_id', False)
+        user = User.get_by_id(int(user_id))
+        if user_id:
+            self.render('welcome.html', username = user.name)
         else:
             self.render('signup.html')
 
