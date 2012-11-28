@@ -71,15 +71,15 @@ class SignUp(BaseHandler):
             user = User(username = username, password = password, email = email)
 
             # Generate a cookie storing user_id
-            self.response.headers.add_header('Set-Cookie', 'user=%s; Path=/' % str(username))
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.id))
 
             self.redirect('/welcome')
 
 class Welcome(BaseHandler):
     def get(self):
-        username = self.request.cookies.get('user')
+        user_id = self.request.cookies.get('user_id')
         if username:
-            self.render('welcome.html', username = username)
+            self.render('welcome.html', username = user_id)
         else:
             self.render('signup.html')
 
