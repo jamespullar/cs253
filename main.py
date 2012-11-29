@@ -46,7 +46,6 @@ class SignUp(BaseHandler):
 
     def post(self):
         errors = {}
-        form = {}
 
         # Get all values from signup form
         username = self.request.get("username")
