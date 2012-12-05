@@ -83,6 +83,13 @@ class SignUp(BaseHandler):
 
             self.redirect('/welcome')
 
+class Login(BaseHandler):
+    def get(self):
+        self.render('login.html')
+
+    def post(self):
+        pass
+
 class Welcome(BaseHandler):
     def get(self):
         user_id = self.request.cookies.get('user_id', False)
@@ -93,6 +100,7 @@ class Welcome(BaseHandler):
             self.render('signup.html')
 
 app = webapp2.WSGIApplication([('/signup', SignUp),
-                               ('/welcome', Welcome)],
+                               ('/welcome', Welcome),
+                               ('/login', Login)],
                                 debug=True)
 
