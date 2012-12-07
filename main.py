@@ -91,7 +91,27 @@ class Login(BaseHandler):
         self.render('login.html')
 
     def post(self):
-        pass
+        # Get all values from signup form
+        username = self.request.get("username")
+        password = self.request.get("password")
+
+        userInDB = Users.gql("where name = :1", username).get()
+
+        if userInDB:
+            userPassword = Users.gql("where password = :1", password).get()
+
+            if userPassword:
+                # Generate a cookie storing user_id
+                self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(userInDB.key().id()))
+                self.redirect('/welcome')
+            else:
+                error = "The username or password is incorrect."
+
+                self.render('login.html', error = error)
+        else:
+            error = "The username or password is incorrect."
+
+            self.render('login.html', error = error)
 
 class Welcome(BaseHandler):
     def get(self):
@@ -106,4 +126,3 @@ app = webapp2.WSGIApplication([('/signup', SignUp),
                                ('/welcome', Welcome),
                                ('/login', Login)],
                                 debug=True)
-
