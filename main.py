@@ -23,6 +23,9 @@ class BaseHandler(webapp2.RequestHandler):
 # Validators for form data
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
+    userInDB = Users.gql("where name = :1", username).get()
+    if userInDB:
+        return None
     return USER_RE.match(username)
 
 PASS_RE = re.compile(r"^.{3,20}$")
