@@ -113,6 +113,12 @@ class Login(BaseHandler):
 
             self.render('login.html', error = error)
 
+class Logout(BaseHandler):
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=''; Path=/')
+
+        self.redirect('/signup')
+
 class Welcome(BaseHandler):
     def get(self):
         user_id = self.request.cookies.get('user_id', False)
@@ -124,5 +130,6 @@ class Welcome(BaseHandler):
 
 app = webapp2.WSGIApplication([('/signup', SignUp),
                                ('/welcome', Welcome),
-                               ('/login', Login)],
+                               ('/login', Login),
+                               ('/logout', Logout)],
                                 debug=True)
