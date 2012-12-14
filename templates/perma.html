@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{post.subject}}{% endblock %}
+{% block content %}
+<div><a href="./">/Home/</a></div>
+<div class="post">
+	<div class="post-subject">{{post.subject}}</div>
+	<pre class="post-content">{{post.content}}</pre>
+</div>
+{% endblock %}
