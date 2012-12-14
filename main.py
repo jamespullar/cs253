@@ -167,13 +167,19 @@ class PermaPage(BaseHandler):
 
         self.render('perma.html', post = post)
 
+class JsonHandler(BaseHandler):
+    def get(self):
+        self.write("This is json!")
+
 app = webapp2.WSGIApplication([('/signup', SignUp),
                                ('/welcome', Welcome),
                                ('/login', Login),
                                ('/logout', Logout),
-                               ('/', FrontPage),
-                               ('/([0-9]+)', PermaPage),
-                               ('/newpost', SubmitPage)],
+                               ('/?', FrontPage),
+                               ('/([0-9]+)?', PermaPage),
+                               ('/newpost', SubmitPage),
+                               ('/.json', JsonHandler),
+                               ('/([0-9]+).json', JsonHandler)],
                                 debug=True)
 
 def main():
