@@ -171,15 +171,15 @@ class JsonHandler(BaseHandler):
     def get(self):
         self.write("This is json!")
 
-app = webapp2.WSGIApplication([('/signup', SignUp),
-                               ('/welcome', Welcome),
-                               ('/login', Login),
-                               ('/logout', Logout),
-                               ('/?', FrontPage),
-                               ('/([0-9]+)?', PermaPage),
-                               ('/newpost', SubmitPage),
+app = webapp2.WSGIApplication([('/signup/?', SignUp),
+                               ('/welcome/?', Welcome),
+                               ('/login/?', Login),
+                               ('/logout/?', Logout),
+                               ('/', FrontPage),
+                               ('/([0-9]+)/?', PermaPage),
+                               ('/newpost/?', SubmitPage),
                                ('/.json', JsonHandler),
-                               ('/([0-9]+).json', JsonHandler)],
+                               ('/([0-9]+)/?.json', JsonHandler)],
                                 debug=True)
 
 def main():
