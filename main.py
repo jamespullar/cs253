@@ -3,6 +3,7 @@ import cgi
 import codecs
 import re
 import os
+import json, urllib
 from jinja2 import Environment, FileSystemLoader
 from google.appengine.ext import db
 
@@ -25,13 +26,17 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
-class Post(db.Model):
+class DictModel(db.Model):
+    def to_dict(self):
+       return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
+
+class Post(DictModel):
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
 # Creates a Users object for storing users in db
-class Users(db.Model):
+class Users(DictModel):
     name = db.StringProperty(required=True)
     password = db.StringProperty(required=True)
     email = db.EmailProperty(required=False)
@@ -168,8 +173,15 @@ class PermaPage(BaseHandler):
         self.render('perma.html', post = post)
 
 class JsonHandler(BaseHandler):
-    def get(self):
-        self.write("This is json!")
+    def get(self, *post_id):
+        self.response.headers['Content-Type'] = 'application/json; charset=UTF-8'
+        if post_id:
+            post = Post.get_by_id(int(post_id[0]))
+            self.write(json.dumps(post.to_dict()))
+        else:
+            posts_query = Post.all()
+            posts = posts_query.fetch(10)
+            self.write(json.dumps([p.to_dict() for p in posts]))
 
 app = webapp2.WSGIApplication([('/signup/?', SignUp),
                                ('/welcome/?', Welcome),
