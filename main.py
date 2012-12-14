@@ -179,7 +179,7 @@ class JsonHandler(BaseHandler):
             post = Post.get_by_id(int(post_id[0]))
             self.write(json.dumps(post.to_dict()))
         else:
-            posts_query = Post.all()
+            posts_query = Post.all().order('-created')
             posts = posts_query.fetch(10)
             self.write(json.dumps([p.to_dict() for p in posts]))
 
