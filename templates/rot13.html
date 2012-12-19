@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}/Signup/{% endblock %}
+{% block content %}
+<form method="post" class="form">
+	<p class="text">
+		<textarea type="text" name="text" id="text">{{text}}</textarea>
+	</p>
+	<input type="submit" value="submit">
+</form>
+{% endblock %}

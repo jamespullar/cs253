@@ -1,11 +1,10 @@
-import webapp2
-import cgi
-import codecs
-import re
-import os
-import json, urllib
+import codecs, re
+import os, logging, time
+
+import webapp2, urllib, cgi, json
 from jinja2 import Environment, FileSystemLoader
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
                   autoescape=True)
@@ -98,7 +97,7 @@ class SignUp(BaseHandler):
 
 class Login(BaseHandler):
     def get(self):
-        self.render('login.html')
+        self.render('login.html', login = "active")
 
     def post(self):
         # Get all values from signup form
@@ -140,9 +139,16 @@ class Welcome(BaseHandler):
 
 class FrontPage(BaseHandler):
     def get(self):
-        posts = db.GqlQuery("select * from Post order by created desc limit 10")
+        posts = memcache.get('top')
+        query_time = memcache.get('time')
 
-        self.render("home.html", posts = posts)
+        if posts is not None:
+            self.render("home.html", posts = posts, query_time = int(time.time() - query_time))
+        else:
+            posts = db.GqlQuery("select * from Post order by created desc limit 10")
+            memcache.set('time', time.time())
+            memcache.set('top', posts)
+            self.render("home.html", posts = posts, query_time = '0')
 
 class SubmitPage(BaseHandler):
     def render_page(self, error = "", subject="", content=""):
@@ -158,6 +164,7 @@ class SubmitPage(BaseHandler):
         if subject and content:
             post = Post(subject = subject, content = content)
             post.put()
+            memcache.set('time', time.time())
 
             post_id = post.key().id()
 
@@ -169,8 +176,14 @@ class SubmitPage(BaseHandler):
 class PermaPage(BaseHandler):
     def get(self, post_id):
         post = Post.get_by_id(int(post_id))
+        query_time = memcache.get('time')
 
-        self.render('perma.html', post = post)
+        self.render('perma.html', post = post, query_time = int(time.time() - query_time))
+
+class FlushHandler(BaseHandler):
+    def get(self):
+        memcache.flush_all()
+        self.redirect('/')
 
 class JsonHandler(BaseHandler):
     def get(self, *post_id):
@@ -183,15 +196,45 @@ class JsonHandler(BaseHandler):
             posts = posts_query.fetch(10)
             self.write(json.dumps([p.to_dict() for p in posts]))
 
+class Rot13(BaseHandler):
+    def get(self):
+        self.render('rot13.html')
+    
+    def post(self):
+        text = self.request.get('text')
+        
+        if text:
+            self.render('rot13.html', text = codecs.encode(text, 'rot13'))
+
+class EditPage(BaseHandler):
+    pass
+
+class WikiPage(BaseHandler):
+    pass
+
+class WikiHome(BaseHandler):
+    def get(self):
+        self.render('wikihome.html', home = "active")
+
+    def post(self):
+        pass
+
+PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/signup/?', SignUp),
                                ('/welcome/?', Welcome),
                                ('/login/?', Login),
                                ('/logout/?', Logout),
-                               ('/', FrontPage),
+                               ('/blog/?', FrontPage),
                                ('/([0-9]+)/?', PermaPage),
                                ('/newpost/?', SubmitPage),
+                               ('/flush/?', FlushHandler),
                                ('/.json', JsonHandler),
-                               ('/([0-9]+)/?.json', JsonHandler)],
+                               ('/([0-9]+)/?.json', JsonHandler),
+                               ('/rot13/?', Rot13),
+                               #('/_edit' + PAGE_RE, EditPage),
+                               #(PAGE_RE, WikiPage),
+                               ('/', WikiHome),
+                               ],
                                 debug=True)
 
 def main():

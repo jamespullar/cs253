@@ -1,27 +1,52 @@
 {% extends "base.html" %}
-{% block title %}/Signup/{% endblock %}
+{% block title %}miniWiki | Signup{% endblock %}
+
 {% block content %}
-<form method="post" class="form">
-	<p class="username">
-		<input type="text" name="username" id="username" value="{{userValue}}" />
-		<label for="username">Username</label>
-		<label name="userError">{{userError}}</label>
-	</p>
-	<p class="password">
-		<input type="password" id="password" name="password" />
-		<label for="password">Password</label>
-		<label name="passwordError">{{passwordError}}</label>
-	</p>
-	<p class="verify">
-		<input type="password" id="verify" name="verify" />
-		<label for="verify">Verify</label>
-		<label name="verifyError">{{verifyError}}</label>
-	</p>
-	<p class="email">
-		<input type="text" name="email" id="email" value="{{emailValue}}" />
-		<label for="email">Email (optional)</label>
-		<label name="emailError">{{emailError}}</label>
-	</p>
-	<input type="submit" value="submit">
-</form>
+    <div class="container">
+      <form class="form-horizontal" method="post">
+        <div class="control-group">
+          <label class="control-label">Username</label>
+          <div class="controls">
+            <input class="input-large" type="text" name="username" value="{{userValue}}"> 
+          </div>
+          <div class="control-error">
+          	<p name="userError">{{userError}}</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">Password
+            <br> 
+          </label>
+          <div class="controls">
+            <input class="input-large" type="password" name="password"> 
+          </div>
+          <div class="control-error">
+          	<p name="passwordError">{{passwordError}}</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">Verify</label>
+          <div class="controls">
+            <input class="input-large" type="password" name="verify"> 
+          </div>
+		  <div class="control-error">
+          	<p name="verifyError">{{verifyError}}</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">Email (optional)</label>
+          <div class="controls">
+            <input class="input-large" type="text" name="email" value="{{emailValue}}"> 
+          </div>
+          <div class="control-error">
+          	<p name="emailError">{{emailError}}</p>
+          </div>
+        </div>
+      <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="Signup!">
+        <a class="btn" href="/"><span class="btn-label">Cancel</span></a> 
+      </div>
+    </form>
+    </div>
+    <script src="https://app.divshot.com/js/bootstrap.min.js"></script>
 {% endblock %}
