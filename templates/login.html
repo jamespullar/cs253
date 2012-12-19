@@ -1,21 +1,5 @@
 {% extends "base.html" %}
 {% block title %}miniWiki | Login{% endblock %}
-
-<form method="post" class="form">
-	<p class="username">
-		<input type="text" name="username" id="username" value="{{userValue}}" />
-		<label for="username">Username</label>
-	</p>
-	<p class="password">
-		<input type="password" id="password" name="password" />
-		<label for="password">Password</label>
-	</p>
-	<p class="error">
-		<label name="error">{{error}}</label>
-	</p>
-	<input type="submit" value="login">
-</form>
-
 {% block content %}
 <div class="container">
 	<form class="form-horizontal" method="post">
@@ -25,16 +9,13 @@
 				<input class="input-large" type="text" name="username" value="{{userValue}}"> 
 			</div>
 			<div class="control-error">
-				<p name="userError">{{userError}}</p>
+				<div name="error">{{error}}</div>
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label">Password</label>
 			<div class="controls">
 				<input class="input-large" type="password" name="password" value="{{passwordValue}}"> 
-			</div>
-			<div class="control-error">
-				<p name="passwordError">{{passwordError}}</p>
 			</div>
 		</div>
 		<div class="form-actions">

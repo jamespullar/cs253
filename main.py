@@ -116,11 +116,11 @@ class Login(BaseHandler):
             else:
                 error = "The username or password is incorrect."
 
-                self.render('login.html', error = error)
+                self.render('login.html', login = "active", error = error)
         else:
             error = "The username or password is incorrect."
 
-            self.render('login.html', error = error)
+            self.render('login.html', login = "active", error = error)
 
 class Logout(BaseHandler):
     def get(self):
