@@ -2,5 +2,9 @@
 {% block title %}miniWiki | {{title}}{% endblock %}
 
 {% block content %}
+	{% if edit %}
 	<textarea>{{content}}</textarea>
+	{% else %}
+	{{content}}
+	{% endif %}
 {% endblock %}

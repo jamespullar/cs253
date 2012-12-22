@@ -22,96 +22,6 @@ class BaseHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
-class SignUp(BaseHandler):
-    def get(self):
-        user_id = self.request.cookies.get('user_id')
-
-        if not user_id:
-            self.render('signup.html')
-        else:
-            self.redirect('/')
-
-    def post(self):
-        errors = {}
-
-        # Get all values from signup form
-        username = self.request.get("username")
-        password = self.request.get("password")
-        verify = self.request.get("verify")
-        email = self.request.get("email")
-
-        # Validate form data and return errors if invalid
-        if not util.valid_username(username):
-            errors["userError"] = "That isn't a valid username."
-        if not util.valid_password(password):
-            errors["passwordError"] = "That isn't a valid password."
-        if not verify == password:
-            errors["verifyError"] = "Your passwords don't match."
-        if not util.valid_email(email):
-            errors["emailError"] = "That isn't a valid email."
-
-        # If errors exist render the page with the errors
-        # If no errors exist redirect to welcome page 
-        if errors:
-            errors["userValue"] = username
-            errors["emailValue"] = email
-
-            self.render('signup.html', **errors)
-        else:
-            # Create the user entity with validated data
-            if email:
-                user = Users(name = username, password = password, email = email)
-            else:
-                user = Users(name = username, password = password)
-            user.put()
-
-            # Generate a cookie storing user_id
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.key().id()))
-
-            self.render('/welcome.html', logged_in = True, username = username)
-
-class Login(BaseHandler):
-    def get(self):
-        self.render('login.html', login = "active")
-
-    def post(self):
-        # Get all values from signup form
-        username = self.request.get("username")
-        password = self.request.get("password")
-
-        # Query DB for existing username
-        userInDB = Users.gql("where name = :1", username).get()
-
-        # If the username matches the DB query
-        if userInDB:
-            # Query DB to match password to username
-            userPassword = Users.gql("where password = :1", password).get()
-
-            # If the password matches, set cookie with user_id and redirect to welcome screen
-            if userPassword:
-                # Generate a cookie storing user_id
-                self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(userInDB.key().id()))
-                self.redirect("/")
-
-            # Throw error if password doesn't match
-            else:
-                error = "The username or password is incorrect."
-
-                self.render('login.html', login = "active", error = error)
-
-        # If the username doesn't match the DB query
-        else:
-            error = "The username or password is incorrect."
-
-            self.render('login.html', login = "active", error = error)
-
-class Logout(BaseHandler):
-    def get(self):
-        self.response.headers.add_header('Set-Cookie', 'user_id=''; Path=/')
-
-        self.redirect('/')
-
-
 class Welcome(BaseHandler):
     def get(self):
         user_id = self.request.cookies.get('user_id', False)
@@ -190,17 +100,108 @@ class Rot13(BaseHandler):
         if text:
             self.render('rot13.html', text = codecs.encode(text, 'rot13'))
 
-class EditPage(BaseHandler):
-    pass
+class SignUp(BaseHandler):
+    def get(self):
+        user_id = self.request.cookies.get('user_id')
+
+        if not user_id:
+            self.render('signup.html')
+        else:
+            self.redirect('/')
+
+    def post(self):
+        errors = {}
+
+        # Get all values from signup form
+        username = self.request.get("username")
+        password = self.request.get("password")
+        verify = self.request.get("verify")
+        email = self.request.get("email")
+
+        # Validate form data and return errors if invalid
+        if not util.valid_username(username):
+            errors["userError"] = "That isn't a valid username."
+        if not util.valid_password(password):
+            errors["passwordError"] = "That isn't a valid password."
+        if not verify == password:
+            errors["verifyError"] = "Your passwords don't match."
+        if not util.valid_email(email):
+            errors["emailError"] = "That isn't a valid email."
+
+        # If errors exist render the page with the errors
+        # If no errors exist redirect to welcome page 
+        if errors:
+            errors["userValue"] = username
+            errors["emailValue"] = email
+
+            self.render('signup.html', **errors)
+        else:
+            # Create the user entity with validated data
+            if email:
+                user = Users(name = username, password = password, email = email)
+            else:
+                user = Users(name = username, password = password)
+            user.put()
+
+            # Generate a cookie storing user_id
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.key().id()))
+
+            self.render('/welcome.html', logged_in = True, username = username)
+
+class Login(BaseHandler):
+    def get(self):
+        user_id = self.request.cookies.get('user_id')
+        
+        if user_id:
+            self.redirect('/')
+        else:
+            self.render('login.html', login = "active")
+
+    def post(self):
+        # Get all values from signup form
+        username = self.request.get("username")
+        password = self.request.get("password")
+
+        # Query DB for existing username
+        userInDB = Users.gql("where name = :1", username).get()
+
+        # If the username matches the DB query
+        if userInDB:
+            # Query DB to match password to username
+            userPassword = Users.gql("where password = :1", password).get()
+
+            # If the password matches, set cookie with user_id and redirect to welcome screen
+            if userPassword:
+                # Generate a cookie storing user_id
+                self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(userInDB.key().id()))
+                self.redirect("/")
+
+            # Throw error if password doesn't match
+            else:
+                error = "The username or password is incorrect."
+
+                self.render('login.html', login = "active", error = error)
+
+        # If the username doesn't match the DB query
+        else:
+            error = "The username or password is incorrect."
+
+            self.render('login.html', login = "active", error = error)
+
+class Logout(BaseHandler):
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=''; Path=/')
+
+        self.redirect('/')
 
 class WikiPage(BaseHandler):
     def get(self, path):
         user_id = self.request.cookies.get('user_id')
         
         if user_id:
-            self.render('wikipage.html', home="active", logged_in=True)
+            self.render('wikipage.html', logged_in=True, title = path, path = path[1:])
         else:
-            self.render('wikipage.html', home = "active", logged_in=False)
+            self.redirect('/')
 
 class WikiHome(BaseHandler):
     def get(self):
@@ -219,6 +220,14 @@ class WikiHome(BaseHandler):
         else:
             self.render('wikihome.html', home = "active", logged_in = False)
 
+class EditPage(BaseHandler):
+    def get(self, path):
+        user_id = self.request.cookies.get('user_id')
+        
+        if user_id:
+            # Set 
+            self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True)
+
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/signup/?', SignUp),
                                ('/welcome/?', Welcome),
@@ -231,9 +240,9 @@ app = webapp2.WSGIApplication([('/signup/?', SignUp),
                                ('/.json', JsonHandler),
                                ('/([0-9]+)/?.json', JsonHandler),
                                ('/rot13/?', Rot13),
-                               #('/_edit' + PAGE_RE, EditPage),
-                               (PAGE_RE, WikiPage),
+                               ('/_edit' + PAGE_RE, EditPage),
                                ('/', WikiHome),
+                               (PAGE_RE, WikiPage),
                                ],
                                 debug=True)
 

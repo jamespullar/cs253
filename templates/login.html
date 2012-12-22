@@ -2,7 +2,7 @@
 {% block title %}miniWiki | Login{% endblock %}
 {% block content %}
 <div class="container">
-	<form class="form-horizontal" method="post">
+	<form class="form-horizontal" method="post" name="login">
 		<div class="control-group">
 			<label class="control-label">Username</label>
 			<div class="controls">
@@ -24,4 +24,6 @@
       </div>
 	</form>
 </div>
+</body>
+<body OnLoad="document.login.username.focus();">
 {% endblock %}
