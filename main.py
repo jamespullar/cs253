@@ -208,15 +208,9 @@ class WikiHome(BaseHandler):
         user_id = self.request.cookies.get('user_id')
 
         if user_id:
-            args = {}
-
             user = Users.get_by_id(int(user_id))
 
-            args['home'] = "active"
-            args['logged_in'] = True
-            args['display'] = "none"
-
-            self.render('wikihome.html', **args)
+            self.render('wikihome.html', home="active", logged_in=True, display="none")
         else:
             self.render('wikihome.html', home = "active", logged_in = False)
 
