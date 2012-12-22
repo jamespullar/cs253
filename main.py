@@ -104,10 +104,10 @@ class SignUp(BaseHandler):
     def get(self):
         user_id = self.request.cookies.get('user_id')
 
-        if not user_id:
-            self.render('signup.html')
-        else:
+        if user_id:
             self.redirect('/')
+        else:
+            self.render('signup.html')
 
     def post(self):
         errors = {}
@@ -146,7 +146,8 @@ class SignUp(BaseHandler):
             # Generate a cookie storing user_id
             self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.key().id()))
 
-            self.render('/welcome.html', logged_in = True, username = username)
+            #self.render('/wikihome.html', home="active", logged_in=True)
+            self.redirect('/')
 
 class Login(BaseHandler):
     def get(self):
@@ -199,7 +200,7 @@ class WikiPage(BaseHandler):
         user_id = self.request.cookies.get('user_id')
         
         if user_id:
-            self.render('wikipage.html', logged_in=True, title = path, path = path[1:])
+            self.render('wikipage.html', logged_in=True, title = path[1:], path = path[1:])
         else:
             self.redirect('/')
 
@@ -220,8 +221,14 @@ class EditPage(BaseHandler):
         
         if user_id:
             # Check if page in db
+            page = PageContent.all().filter("title =", path)
 
-            self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True)
+            if page:
+                self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True, content=page.content)
+            else:
+                self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True)
+        else:
+            self.redirect('/')
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/signup/?', SignUp),
