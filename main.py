@@ -214,7 +214,7 @@ class WikiHome(BaseHandler):
 
             args['home'] = "active"
             args['logged_in'] = True
-            args['username'] = user.name
+            args['display'] = "none"
 
             self.render('wikihome.html', **args)
         else:
@@ -225,7 +225,8 @@ class EditPage(BaseHandler):
         user_id = self.request.cookies.get('user_id')
         
         if user_id:
-            # Set 
+            # Check if page in db
+
             self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True)
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
