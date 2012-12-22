@@ -5,7 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 from google.appengine.api import memcache
 
 from google.appengine.ext import db
-from model import Users, Post
+from model import Users, Post, PageContent, PageHistory
 import util
 
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
@@ -200,7 +200,12 @@ class WikiPage(BaseHandler):
         user_id = self.request.cookies.get('user_id')
         
         if user_id:
-            self.render('wikipage.html', logged_in=True, title = path[1:], path = path[1:])
+            page = PageContent.all().filter("title =", path).get()
+
+            if page:
+                self.render('wikipage.html', logged_in=True, title=path[1:], path=path[1:], content=page.content)
+            else:
+                self.render('wikipage.html', logged_in=True, title=path[1:], path=path[1:])
         else:
             self.redirect('/')
 
@@ -211,9 +216,9 @@ class WikiHome(BaseHandler):
         if user_id:
             user = Users.get_by_id(int(user_id))
 
-            self.render('wikihome.html', home="active", logged_in=True, display="none")
+            self.render('wikihome.html', home="active", logged_in=True, display_edit="none")
         else:
-            self.render('wikihome.html', home = "active", logged_in = False)
+            self.render('wikihome.html', home="active", logged_in=False)
 
 class EditPage(BaseHandler):
     def get(self, path):
@@ -221,7 +226,7 @@ class EditPage(BaseHandler):
         
         if user_id:
             # Check if page in db
-            page = PageContent.all().filter("title =", path)
+            page = PageContent.all().filter("title =", path).get()
 
             if page:
                 self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True, content=page.content)
