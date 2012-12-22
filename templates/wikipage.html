@@ -1,9 +1,21 @@
 {% extends "base.html" %}
-{% block title %}miniWiki | {{title}}{% endblock %}
+{% block title %}miniWiki | {{path}}{% endblock %}
 
 {% block content %}
 	{% if edit %}
-	<textarea>{{content}}</textarea>
+	<div class="container">
+	<form class="form-horizontal" method="post" name="form">
+		<div class="control-group">
+			<textarea class="boxsizingBorder">{{content}}</textarea>
+		</div>
+		<div class="form-actions">
+        	<input type="submit" class="btn btn-primary" value="Save">
+        	<a class="btn" href="{{path}}"><span class="btn-label">Cancel</span></a> 
+      </div>
+	</form>
+	</div>
+	</body>
+	<body OnLoad="document.login.username.focus();">
 	{% else %}
 	{{content}}
 	{% endif %}

@@ -214,8 +214,7 @@ class WikiHome(BaseHandler):
         user_id = self.request.cookies.get('user_id')
 
         if user_id:
-            user = Users.get_by_id(int(user_id))
-
+            #user = Users.get_by_id(int(user_id))
             self.render('wikihome.html', home="active", logged_in=True, display_edit="none")
         else:
             self.render('wikihome.html', home="active", logged_in=False)
@@ -229,9 +228,9 @@ class EditPage(BaseHandler):
             page = PageContent.all().filter("title =", path).get()
 
             if page:
-                self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True, content=page.content)
+                self.render('wikipage.html', path = path[1:], logged_in=True, edit=True, display_edit="none", content=page.content)
             else:
-                self.render('wikipage.html', path = path[1:], logged_in=True, title=path[1:], edit=True)
+                self.render('wikipage.html', path = path[1:], logged_in=True, edit=True, display_edit="none")
         else:
             self.redirect('/')
 
