@@ -2,16 +2,22 @@
 {% block title %}miniWiki | Home{% endblock %}
 
 {% block content %}
-<div class="hero-unit">
-  <h1>miniWiki
-    <br> 
-  </h1>
-  <p>a wiki for small topics
-    <br> 
-  </p>
-  <p>
-    <a class="btn btn-large btn-primary" href="/signup"><span class="btn-label">Sign Up Today!</span></a> 
-  </p>
-</div>
+{% if logged_in %}
+  <div class="container">
+    This is the logged in page. Congratulations!
+  </div>
+{% else %}
+  <div class="hero-unit">
+    <h1>miniWiki
+      <br> 
+    </h1>
+    <p>a wiki for small topics
+      <br> 
+    </p>
+    <p>
+      <a class="btn btn-large btn-primary" href="/signup"><span class="btn-label">Sign Up Today!</span></a> 
+    </p>
+  </div>
+{% endif %}
 <script src="https://app.divshot.com/js/bootstrap.min.js"></script>
-  {% endblock %}
+{% endblock %}

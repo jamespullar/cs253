@@ -1,45 +1,15 @@
-import codecs, re
-import os, logging, time
+import os, time, codecs, time, logging
 
 import webapp2, urllib, cgi, json
 from jinja2 import Environment, FileSystemLoader
-from google.appengine.ext import db
 from google.appengine.api import memcache
+
+from google.appengine.ext import db
+from model import Users, Post
+import util
 
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
                   autoescape=True)
-
-# Validators for form data
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-def valid_username(username):
-    userInDB = Users.gql("where name = :1", username).get()
-    if userInDB:
-        return None
-    return USER_RE.match(username)
-
-PASS_RE = re.compile(r"^.{3,20}$")
-def valid_password(password):
-    return PASS_RE.match(password)
-
-EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
-def valid_email(email):
-    return not email or EMAIL_RE.match(email)
-
-class DictModel(db.Model):
-    def to_dict(self):
-       return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
-
-class Post(DictModel):
-    subject = db.StringProperty(required=True)
-    content = db.TextProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add=True)
-
-# Creates a Users object for storing users in db
-class Users(DictModel):
-    name = db.StringProperty(required=True)
-    password = db.StringProperty(required=True)
-    email = db.EmailProperty(required=False)
-    created = db.DateTimeProperty(auto_now_add=True)
 
 class BaseHandler(webapp2.RequestHandler):
     def render(self, template, **kw):
@@ -54,7 +24,12 @@ class BaseHandler(webapp2.RequestHandler):
 
 class SignUp(BaseHandler):
     def get(self):
-        self.render('signup.html')
+        user_id = self.request.cookies.get('user_id')
+
+        if not user_id:
+            self.render('signup.html')
+        else:
+            self.redirect('/')
 
     def post(self):
         errors = {}
@@ -66,13 +41,13 @@ class SignUp(BaseHandler):
         email = self.request.get("email")
 
         # Validate form data and return errors if invalid
-        if not valid_username(username):
+        if not util.valid_username(username):
             errors["userError"] = "That isn't a valid username."
-        if not valid_password(password):
+        if not util.valid_password(password):
             errors["passwordError"] = "That isn't a valid password."
         if not verify == password:
             errors["verifyError"] = "Your passwords don't match."
-        if not valid_email(email):
+        if not util.valid_email(email):
             errors["emailError"] = "That isn't a valid email."
 
         # If errors exist render the page with the errors
@@ -93,7 +68,7 @@ class SignUp(BaseHandler):
             # Generate a cookie storing user_id
             self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(user.key().id()))
 
-            self.redirect('/welcome')
+            self.render('/welcome.html', logged_in = True, username = username)
 
 class Login(BaseHandler):
     def get(self):
@@ -104,19 +79,27 @@ class Login(BaseHandler):
         username = self.request.get("username")
         password = self.request.get("password")
 
+        # Query DB for existing username
         userInDB = Users.gql("where name = :1", username).get()
 
+        # If the username matches the DB query
         if userInDB:
+            # Query DB to match password to username
             userPassword = Users.gql("where password = :1", password).get()
 
+            # If the password matches, set cookie with user_id and redirect to welcome screen
             if userPassword:
                 # Generate a cookie storing user_id
                 self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(userInDB.key().id()))
-                self.redirect('/welcome')
+                self.redirect("/")
+
+            # Throw error if password doesn't match
             else:
                 error = "The username or password is incorrect."
 
                 self.render('login.html', login = "active", error = error)
+
+        # If the username doesn't match the DB query
         else:
             error = "The username or password is incorrect."
 
@@ -126,7 +109,8 @@ class Logout(BaseHandler):
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'user_id=''; Path=/')
 
-        self.redirect('/signup')
+        self.redirect('/')
+
 
 class Welcome(BaseHandler):
     def get(self):
@@ -210,14 +194,30 @@ class EditPage(BaseHandler):
     pass
 
 class WikiPage(BaseHandler):
-    pass
+    def get(self, path):
+        user_id = self.request.cookies.get('user_id')
+        
+        if user_id:
+            self.render('wikipage.html', home="active", logged_in=True)
+        else:
+            self.render('wikipage.html', home = "active", logged_in=False)
 
 class WikiHome(BaseHandler):
     def get(self):
-        self.render('wikihome.html', home = "active")
+        user_id = self.request.cookies.get('user_id')
 
-    def post(self):
-        pass
+        if user_id:
+            args = {}
+
+            user = Users.get_by_id(int(user_id))
+
+            args['home'] = "active"
+            args['logged_in'] = True
+            args['username'] = user.name
+
+            self.render('wikihome.html', **args)
+        else:
+            self.render('wikihome.html', home = "active", logged_in = False)
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/signup/?', SignUp),
@@ -232,7 +232,7 @@ app = webapp2.WSGIApplication([('/signup/?', SignUp),
                                ('/([0-9]+)/?.json', JsonHandler),
                                ('/rot13/?', Rot13),
                                #('/_edit' + PAGE_RE, EditPage),
-                               #(PAGE_RE, WikiPage),
+                               (PAGE_RE, WikiPage),
                                ('/', WikiHome),
                                ],
                                 debug=True)

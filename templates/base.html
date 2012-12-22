@@ -23,12 +23,18 @@
 							<li class="{{home}}">
 								<a href="/">Home</a> 
 							</li>
+							{% if logged_in %}
 							<li class="{{login}}">
-								<a href="/login">Login</a> 
+								<a href="/logout">Logout</a> 
 							</li>
 							<li class="{{edit}}">
 								<a href="#">Edit</a> 
 							</li>
+							{% else %}
+							<li class="{{login}}">
+								<a href="/login">Login</a> 
+							</li>
+							{% endif %}
 						</ul>
 					</div>
 				</div>
