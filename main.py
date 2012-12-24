@@ -195,6 +195,16 @@ class Logout(BaseHandler):
 
         self.redirect('/')
 
+class WikiHome(BaseHandler):
+    def get(self):
+        user_id = self.request.cookies.get('user_id')
+
+        if user_id:
+            #user = Users.get_by_id(int(user_id))
+            self.render('wikihome.html', home="active", logged_in=True, display_edit="none")
+        else:
+            self.render('wikihome.html', home="active", logged_in=False)
+
 class WikiPage(BaseHandler):
     def get(self, path):
         user_id = self.request.cookies.get('user_id')
@@ -216,16 +226,6 @@ class WikiPage(BaseHandler):
         page.put()
         
         self.render('wikipage.html', logged_in=True, path=path[1:], content=page.content)
-
-class WikiHome(BaseHandler):
-    def get(self):
-        user_id = self.request.cookies.get('user_id')
-
-        if user_id:
-            #user = Users.get_by_id(int(user_id))
-            self.render('wikihome.html', home="active", logged_in=True, display_edit="none")
-        else:
-            self.render('wikihome.html', home="active", logged_in=False)
 
 class EditPage(BaseHandler):
     def get(self, path):
@@ -249,7 +249,7 @@ class EditPage(BaseHandler):
         page.content = content
         page.put()
         
-        self.render('wikipage.html', logged_in=True, path=path[1:], content=page.content)
+        self.redirect(page.title)
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/signup/?', SignUp),
