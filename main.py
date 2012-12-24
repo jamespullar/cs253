@@ -203,11 +203,19 @@ class WikiPage(BaseHandler):
             page = PageContent.all().filter("title =", path).get()
 
             if page:
-                self.render('wikipage.html', logged_in=True, title=path[1:], path=path[1:], content=page.content)
+                self.render('wikipage.html', logged_in=True, path=path[1:], content=page.content)
             else:
-                self.render('wikipage.html', logged_in=True, title=path[1:], path=path[1:])
+                self.render('wikipage.html', path = path[1:], logged_in=True, edit=True, display_edit="none")
         else:
             self.redirect('/')
+
+    def post(self, path):
+        content = self.request.get('content')
+        
+        page = PageContent(title=path, content=content)
+        page.put()
+        
+        self.render('wikipage.html', logged_in=True, path=path[1:], content=page.content)
 
 class WikiHome(BaseHandler):
     def get(self):
@@ -233,6 +241,15 @@ class EditPage(BaseHandler):
                 self.render('wikipage.html', path = path[1:], logged_in=True, edit=True, display_edit="none")
         else:
             self.redirect('/')
+
+    def post(self, path):
+        page = PageContent.all().filter("title =", path).get()
+        content = self.request.get('content')
+
+        page.content = content
+        page.put()
+        
+        self.render('wikipage.html', logged_in=True, path=path[1:], content=page.content)
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/signup/?', SignUp),

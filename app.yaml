@@ -7,6 +7,20 @@ threadsafe: true
 handlers:
 - url: /styles
   static_dir: static/styles
+- url: /js
+  static_dir: static/js
+- url: /markitup
+  static_dir: static/styles/markitup
+- url: /ckeditor
+  static_dir: static/styles/ckeditor
+- url: /_edit/ckeditor
+  static_dir: static/styles/ckeditor
+- url: /_edit/styles
+  static_dir: static/styles
+- url: /_edit/js
+  static_dir: static/js
+- url: /_edit/markitup
+  static_dir: static/styles/markitup
 - url: /.*
   script: main.app
 

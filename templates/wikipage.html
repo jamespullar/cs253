@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block title %}miniWiki | {{path}}{% endblock %}
-
+{% block head %}
+	<script src="/ckeditor/ckeditor.js"></script>
+{% endblock %}
 {% block content %}
 	{% if edit %}
 	<div class="container">
 	<form class="form-horizontal" method="post" name="form">
 		<div class="control-group">
-			<textarea class="boxsizingBorder">{{content}}</textarea>
+			<textarea class="boxsizingBorder" name="content">{{content}}</textarea>
 		</div>
 		<div class="form-actions">
         	<input type="submit" class="btn btn-primary" value="Save">
@@ -15,7 +17,10 @@
 	</form>
 	</div>
 	</body>
-	<body OnLoad="document.login.username.focus();">
+	<body OnLoad="document.boxsizingBorder.focus();">
+	<script>
+    	CKEDITOR.replace('content');
+	</script>
 	{% else %}
 	{{content}}
 	{% endif %}

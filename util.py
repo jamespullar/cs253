@@ -11,9 +11,9 @@ PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 
 def valid_username(username):
-    userInDB = model.Users.all().filter("name =", username).get()
+    user = model.Users.all().filter("name =", username).get()
     
-    if userInDB:
+    if user:
         return None
     return USER_RE.match(username)
 
@@ -24,7 +24,14 @@ def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
 @db.transactional
-def edit_page(key, user_id, content):
+def edit_page(key, content):
 	page = db.get(key)
+	page.content = content
+	page.put()
+
+@db.transactional
+def create_page(title, content):
+	page = model.PageContent()
+	page.title = title
 	page.content = content
 	page.put()
