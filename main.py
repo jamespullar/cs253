@@ -210,9 +210,14 @@ class WikiPage(BaseHandler):
         user_id = self.request.cookies.get('user_id')
         
         if user_id:
-            page = PageContent.all().filter("title =", path).get()
+            cached_page = memcache.get(path[1:])
+            if cached_page:
+                page = cached_page
+            else:
+                page = PageContent.all().filter("title =", path).get()
 
             if page:
+                memcache.add(page.title, page)
                 self.render('wikipage.html', logged_in=True, path=path[1:], content=page.content)
             else:
                 self.render('wikipage.html', path = path[1:], logged_in=True, edit=True, display_edit="none")
@@ -230,6 +235,10 @@ class WikiPage(BaseHandler):
 class EditPage(BaseHandler):
     def get(self, path):
         user_id = self.request.cookies.get('user_id')
+
+        # Redirect back to home of no page title is in url
+        if path == '/':
+            self.redirect('/')
         
         if user_id:
             # Check if page in db
